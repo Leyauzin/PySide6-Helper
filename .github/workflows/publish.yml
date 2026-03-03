@@ -24,19 +24,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Installer les dépendances
-        run: pip install cython setuptools>=68 wheel build PySide6
+        run: pip install cython "setuptools>=68" wheel build PySide6
 
       - name: Compiler avec Cython
         run: python setup.py build_ext --inplace
 
-      - name: Supprimer les .py sources
+      - name: Builder le wheel (binaire)
+        run: python -m build --wheel
+
+      - name: Supprimer les .py sources du wheel
         shell: bash
         run: |
           rm -f ui/ui_tools.py
           rm -f ui/ui_inspector.py
-
-      - name: Builder le package
-        run: python -m build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
