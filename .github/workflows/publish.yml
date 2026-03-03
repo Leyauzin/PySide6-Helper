@@ -1,0 +1,61 @@
+name: Build & Publish
+
+on:
+  push:
+    tags:
+      - "v*"   # se déclenche uniquement sur un tag ex: v1.0.0
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Installer les dépendances
+        run: pip install cython setuptools wheel build PySide6
+
+      - name: Compiler avec Cython
+        run: python setup.py build_ext --inplace
+
+      - name: Supprimer les .py sources
+        shell: bash
+        run: |
+          rm -f ui/ui_tools.py
+          rm -f ui/ui_inspector.py
+
+      - name: Builder le package
+        run: python -m build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer tous les artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - name: Publier sur PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
