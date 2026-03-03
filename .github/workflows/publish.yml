@@ -47,8 +47,6 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
 
     steps:
       - name: Récupérer tous les artifacts
@@ -57,7 +55,16 @@ jobs:
           path: dist/
           merge-multiple: true
 
-      - name: Publier sur PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          python-version: "3.12"
+
+      - name: Installer twine
+        run: pip install twine
+
+      - name: Publier sur PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload dist/**/*.whl
