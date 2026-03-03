@@ -32,11 +32,18 @@ jobs:
       - name: Builder le wheel (binaire)
         run: python -m build --wheel
 
-      - name: Supprimer les .py sources du wheel
+      - name: Supprimer les .py sources
         shell: bash
         run: |
           rm -f ui/ui_tools.py
           rm -f ui/ui_inspector.py
+
+      - name: Réparer le wheel Linux (manylinux)
+        if: runner.os == 'Linux'
+        run: |
+          pip install auditwheel patchelf
+          auditwheel repair dist/*.whl --wheel-dir dist/
+          rm dist/*linux_x86_64.whl
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
