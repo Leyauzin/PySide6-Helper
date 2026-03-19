@@ -177,10 +177,6 @@ class Section:
             self._layout.addSpacing(gap)
         return self
 
-    # ------------------------------------------------------------------ #
-    #  1. Inputs / formulaires                                             #
-    # ------------------------------------------------------------------ #
-
     def add_input(
         self,
         placeholder: str = "",
@@ -238,10 +234,6 @@ class Section:
         self._layout.addWidget(line, self._next_stretch(stretch))
         return self
 
-    # ------------------------------------------------------------------ #
-    #  Espacement                                                          #
-    # ------------------------------------------------------------------ #
-
     def add_spacer(self, stretch: int = 1) -> "Section":
         self._layout.addStretch(stretch)
         return self
@@ -259,20 +251,12 @@ class Section:
         self._layout.setContentsMargins(left, top, right, bottom)
         return self
 
-    # ------------------------------------------------------------------ #
-    #  2. Styling                                                          #
-    # ------------------------------------------------------------------ #
-
     def set_style(self, css: str) -> "Section":
         """Applique du CSS Qt sur le widget conteneur de cette section."""
         widget = self._layout.parentWidget()
         if widget:
             widget.setStyleSheet(css)
         return self
-
-    # ------------------------------------------------------------------ #
-    #  Sous-sections                                                       #
-    # ------------------------------------------------------------------ #
 
     def add_row(self, stretches=None, stretch=None, align=None, cross_align=None, name=None) -> "Section":
         cross_flag = _CROSS_FLAGS_HORIZONTAL.get(cross_align) if cross_align else None
@@ -291,10 +275,6 @@ class Section:
         child = Section(layout, parent=self, stretches=stretches, align=align, cross_flag=cross_flag)
         self._sub_sections.append(child)
         return child
-
-    # ------------------------------------------------------------------ #
-    #  4. Scroll                                                           #
-    # ------------------------------------------------------------------ #
 
     def add_scroll(
         self,
