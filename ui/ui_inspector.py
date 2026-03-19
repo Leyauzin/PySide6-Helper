@@ -6,7 +6,6 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QObject
 
-
 def _node_label(obj: QObject) -> str:
     cls = type(obj).__name__
     name = obj.objectName() if hasattr(obj, 'objectName') else ""
@@ -77,12 +76,6 @@ def save_tree(root: QWidget, path: str = "ui_tree.txt") -> None:
         f.write(get_tree(root))
     print(f"Arborescence sauvegardée → {path}")
 
-
-# ------------------------------------------------------------------ #
-#  Générateur de template QSS                                         #
-# ------------------------------------------------------------------ #
-
-# Widgets qui méritent un bloc QSS, avec leur template de base
 _QSS_TEMPLATES: dict[type, str] = {
     QPushButton: "QPushButton {{\n    /* background-color: ;\n    color: ;\n    border-radius: px;\n    padding: px px; */\n}}\nQPushButton:hover {{\n    /* background-color: ; */\n}}\nQPushButton:pressed {{\n    /* background-color: ; */\n}}",
     QLabel:      "QLabel {{\n    /* color: ;\n    font-size: px;\n    font-weight: bold; */\n}}",
@@ -128,7 +121,6 @@ def generate_qss(root: QWidget, path: str = "style/style.qss") -> None:
              "/* Décommentez et modifiez les propriétés que vous voulez utiliser  */",
              "/* ================================================================ */\n"]
 
-    # Blocs par type — un seul bloc par type même s'il y en a plusieurs
     seen_types: set[type] = set()
     lines.append("/* ── Styles globaux par type de widget ── */\n")
     for widget in widgets:
@@ -138,7 +130,6 @@ def generate_qss(root: QWidget, path: str = "style/style.qss") -> None:
             lines.append(_QSS_TEMPLATES[t].format())
             lines.append("")
 
-    # Blocs par objectName — un bloc par widget nommé
     named = [(w, w.objectName()) for w in widgets if hasattr(w, 'objectName') and w.objectName()]
     if named:
         lines.append("\n/* ── Styles spécifiques par nom (#objectName) ── */\n")
