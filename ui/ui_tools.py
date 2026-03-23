@@ -91,23 +91,23 @@ class Section:
     def add_tabs(
             self,
             tabs: list[str],
-            stretch: int | None = None,
-            name: str | None = None,  # ← ajout
+            stretch: int = 1,
+            name: str | None = None,
     ) -> dict[str, "Section"]:
         from PySide6.QtWidgets import QTabWidget
         tabs_widget = QTabWidget()
         if name:
-            tabs_widget.setObjectName(name)  # ← ajout
+            tabs_widget.setObjectName(name)
         self._layout.addWidget(tabs_widget, self._next_stretch(stretch))
 
         sections: dict[str, Section] = {}
-        for name in tabs:
+        for tab_name in tabs:
             container = QWidget()
             layout = QVBoxLayout(container)
-            tabs_widget.addTab(container, name)
+            tabs_widget.addTab(container, tab_name)
             child = Section(layout, parent=self)
             self._sub_sections.append(child)
-            sections[name] = child
+            sections[tab_name] = child
 
         return sections
 
@@ -137,8 +137,14 @@ class Section:
         return widget
 
     def get(self, name: str) -> QWidget | None:
-        """Retourne un widget enregistré par son nom."""
-        return self._named_widgets.get(name)
+        """Retourne un widget enregistré par son nom (récursif)."""
+        if name in self._named_widgets:
+            return self._named_widgets[name]
+        for child in self._sub_sections:
+            result = child.get(name)
+            if result is not None:
+                return result
+        return None
 
     def clear(self) -> "Section":
         """Vide tous les widgets de la section."""
@@ -176,6 +182,10 @@ class Section:
         if gap > 0:
             self._layout.addSpacing(gap)
         return self
+
+    # ------------------------------------------------------------------ #
+    #  1. Inputs / formulaires                                             #
+    # ------------------------------------------------------------------ #
 
     def add_input(
         self,
@@ -234,6 +244,10 @@ class Section:
         self._layout.addWidget(line, self._next_stretch(stretch))
         return self
 
+    # ------------------------------------------------------------------ #
+    #  Espacement                                                          #
+    # ------------------------------------------------------------------ #
+
     def add_spacer(self, stretch: int = 1) -> "Section":
         self._layout.addStretch(stretch)
         return self
@@ -251,12 +265,20 @@ class Section:
         self._layout.setContentsMargins(left, top, right, bottom)
         return self
 
+    # ------------------------------------------------------------------ #
+    #  2. Styling                                                          #
+    # ------------------------------------------------------------------ #
+
     def set_style(self, css: str) -> "Section":
         """Applique du CSS Qt sur le widget conteneur de cette section."""
         widget = self._layout.parentWidget()
         if widget:
             widget.setStyleSheet(css)
         return self
+
+    # ------------------------------------------------------------------ #
+    #  Sous-sections                                                       #
+    # ------------------------------------------------------------------ #
 
     def add_row(self, stretches=None, stretch=None, align=None, cross_align=None, name=None) -> "Section":
         cross_flag = _CROSS_FLAGS_HORIZONTAL.get(cross_align) if cross_align else None
@@ -275,6 +297,10 @@ class Section:
         child = Section(layout, parent=self, stretches=stretches, align=align, cross_flag=cross_flag)
         self._sub_sections.append(child)
         return child
+
+    # ------------------------------------------------------------------ #
+    #  4. Scroll                                                           #
+    # ------------------------------------------------------------------ #
 
     def add_scroll(
         self,
