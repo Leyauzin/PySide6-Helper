@@ -1,4 +1,4 @@
-# UIWrapper — Documentation
+# UIWrapper | Documentation
 
 > Wrapper PySide6 pensé pour construire des interfaces de bureau en Python de manière lisible, chainable, et sans répétition.
 
